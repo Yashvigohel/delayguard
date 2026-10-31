@@ -5,9 +5,11 @@ import joblib
 import pandas as pd
 import xgboost as xgb
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 MODELS = Path(__file__).resolve().parent.parent / "models"
+STATIC = Path(__file__).resolve().parent / "static"
 model = xgb.XGBClassifier()
 model.load_model(str(MODELS / "xgb_tuned.json"))
 scaler = joblib.load(MODELS / "scaler.pkl")
@@ -68,8 +70,12 @@ CATEGORICAL = ['Type', 'Customer Country', 'Customer Segment', 'Department Name'
 
 @app.get("/")
 def home():
-    return {"message": "DelayGuard API is running. Open /docs to try it."}
+    return FileResponse(STATIC / "index.html")
 
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 @app.get("/options")
 def options():

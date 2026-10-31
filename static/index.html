@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DelayGuard</title>
+<style>
+  body{font-family:Arial,sans-serif;background:#f4f6f9;margin:0;color:#222}
+  header{background:#1f3a5f;color:#fff;padding:18px 24px}
+  header h1{margin:0;font-size:24px}
+  header p{margin:4px 0 0;opacity:.85;font-size:14px}
+  main{max-width:900px;margin:24px auto;padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:760px){main{grid-template-columns:1fr}}
+  .card{background:#fff;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.1)}
+  label{display:block;font-size:13px;margin:10px 0 4px;color:#555}
+  select,input{width:100%;padding:8px;border:1px solid #ccd;border-radius:6px;font-size:14px;box-sizing:border-box}
+  button{margin-top:16px;width:100%;padding:11px;background:#1f3a5f;color:#fff;border:0;border-radius:6px;font-size:15px;cursor:pointer}
+  button:disabled{opacity:.6}
+  .badge{display:inline-block;padding:8px 14px;border-radius:20px;font-weight:bold;margin:8px 0}
+  .high{background:#fde2e1;color:#b3261e}
+  .low{background:#dff5e3;color:#1e7a34}
+  .prob{font-size:38px;font-weight:bold;margin:4px 0}
+  ul{padding-left:18px}
+  .muted{color:#777;font-size:12px}
+  .err{color:#b3261e}
+</style>
+</head>
+<body>
+<header>
+  <h1>DelayGuard</h1>
+  <p>Predicts at order time whether an order is at risk of late delivery</p>
+</header>
+<main>
+  <div class="card">
+    <h3>Order details</h3>
+    <label>Order date and time</label>
+    <input type="datetime-local" id="order_date">
+    <label>Shipping mode</label>
+    <select id="shipping_mode"></select>
+    <label>Payment type</label>
+    <select id="payment_type"></select>
+    <label>Customer segment</label>
+    <select id="customer_segment"></select>
+    <label>Market</label>
+    <select id="market"></select>
+    <label>Order region</label>
+    <select id="order_region"></select>
+    <label>Order amount (sales)</label>
+    <input type="number" id="sales" value="200" min="1">
+    <label>Discount rate (0 to 0.25)</label>
+    <input type="number" id="discount" value="0.1" min="0" max="0.25" step="0.01">
+    <button id="btn" onclick="predict()">Predict delay risk</button>
+  </div>
+  <div class="card">
+    <h3>Result</h3>
+    <div id="result"><p class="muted">Fill in the order and click Predict.</p></div>
+  </div>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const fields = {shipping_mode:"Shipping Mode", payment_type:"Type", customer_segment:"Customer Segment",
+                market:"Market", order_region:"Order Region"};
+const defaults = {shipping_mode:"Standard Class", payment_type:"DEBIT", customer_segment:"Consumer",
+                  market:"LATAM", order_region:"Central America"};
+
+async function init(){
+  const opts = await (await fetch("/options")).json();
+  for (const [id, key] of Object.entries(fields)){
+    opts[key].forEach(v => {
+      const o = document.createElement("option");
+      o.value = v; o.textContent = v;
+      $(id).appendChild(o);
+    });
+    if (opts[key].includes(defaults[id])) $(id).value = defaults[id];
+  }
+  $("order_date").value = "2017-09-21T09:49";
+}
+
+async function predict(){
+  const btn = $("btn"), out = $("result");
+  btn.disabled = true; btn.textContent = "Predicting...";
+  const sales = parseFloat($("sales").value) || 0;
+  const rate = parseFloat($("discount").value) || 0;
+  const body = {
+    order_date: $("order_date").value.replace("T", " ") + ":00",
+    shipping_mode: $("shipping_mode").value,
+    payment_type: $("payment_type").value,
+    customer_segment: $("customer_segment").value,
+    market: $("market").value,
+    order_region: $("order_region").value,
+    sales: sales,
+    sales_per_customer: sales * 0.9,
+    order_item_product_price: sales,
+    order_item_discount: sales * rate,
+    order_item_discount_rate: rate
+  };
+  try {
+    const res = await fetch("/predict", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+    const data = await res.json();
+    out.innerHTML = "";
+    if (!res.ok){
+      const p = document.createElement("p");
+      p.className = "err";
+      p.textContent = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+      out.appendChild(p);
+    } else {
+      const high = data.prediction.startsWith("HIGH");
+      const prob = document.createElement("div");
+      prob.className = "prob";
+      prob.textContent = (data.late_probability * 100).toFixed(1) + "% late";
+      const badge = document.createElement("div");
+      badge.className = "badge " + (high ? "high" : "low");
+      badge.textContent = data.prediction;
+      const act = document.createElement("p");
+      act.textContent = "Suggested action: " + data.suggested_action;
+      const h = document.createElement("h4");
+      h.textContent = "Top reasons";
+      const ul = document.createElement("ul");
+      data.top_reasons.forEach(r => {
+        const li = document.createElement("li");
+        li.textContent = r.feature + " " + r.effect + " (SHAP " + r.shap_value + ")";
+        ul.appendChild(li);
+      });
+      const note = document.createElement("p");
+      note.className = "muted";
+      note.textContent = "Decision threshold: " + data.decision_threshold + ". " + data.note;
+      out.append(prob, badge, act, h, ul, note);
+    }
+  } catch (e) {
+    out.innerHTML = "";
+    const p = document.createElement("p");
+    p.className = "err";
+    p.textContent = "Could not reach the API: " + e;
+    out.appendChild(p);
+  }
+  btn.disabled = false; btn.textContent = "Predict delay risk";
+}
+init();
+</script>
+</body>
+</html>
