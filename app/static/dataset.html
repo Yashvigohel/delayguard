@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/assets/style.css"><script src="/assets/site.js"></script><title>Dataset | DelayGuard</title></head>
+<body data-page="dataset"><main><div class="wrap">
+<div class="page-head"><h1>The dataset</h1><p class="lead">DelayGuard learns from the DataCo Smart Supply Chain data, a public dataset of orders with delivery outcomes.</p></div>
+<section><dl class="spec">
+<dt>Name</dt><dd>DataCo Smart Supply Chain for Big Data Analysis</dd>
+<dt>Source</dt><dd><a href="https://www.kaggle.com/datasets/shashwatwork/dataco-smart-supply-chain-for-big-data-analysis">Kaggle</a>, originally published on Mendeley Data</dd>
+<dt>Citation</dt><dd>Constante, F., Silva, F., &amp; Pereira, A. (2019). DataCo Smart Supply Chain for Big Data Analysis. Mendeley Data, V5. doi.org/10.17632/8gx2fvg2k6.5</dd>
+<dt>Licence</dt><dd>Creative Commons Attribution 4.0 (CC BY 4.0)</dd>
+<dt>Original size</dt><dd>180,519 orders, 53 columns</dd>
+<dt>Working sample</dt><dd>45,000 orders, stratified on the target. 31 columns after cleaning, 60 model inputs after preparation.</dd>
+<dt>Target</dt><dd>Late_delivery_risk. 1 means late (54.8% of the sample), 0 means on time (45.2%).</dd>
+<dt>Scheduled days</dt><dd>Fixed by shipping mode in this data: Same Day 0, First Class 1, Second Class 2, Standard Class 4.</dd>
+</dl></section>
+<section class="band" style="padding:2.5rem 0"><h2>What the exploration showed</h2><ul class="list">
+<li>Shipping mode is the strongest signal. First Class orders were late 95.5% of the time and Standard Class 37.6% (9,000 test orders).</li>
+<li>Same Day orders follow a time rule. Orders placed before 12:00 were never late, and orders placed from 12:00 on were late in 89% or more of cases for every hour.</li>
+<li>Order region barely separates late from on-time orders. Product category varies more, with Strength Training the highest among those plotted.</li>
+<li>Some orders lose a lot of money (as low as -4,274.98 per order). They look like real losses, not errors, so they were kept.</li></ul></section>
+<section style="padding:2.5rem 0"><h2>What was removed, and why</h2><ul class="list">
+<li>Personal details and IDs, because they identify people or rows and say nothing about delay.</li>
+<li>Real shipping days and delivery status, because they are only known after delivery.</li>
+<li>Order status, because it describes how the order ended.</li>
+<li>City, state, country and category-name text, because each has far too many values for a simple encoding.</li></ul></section>
+</div></main></body></html>

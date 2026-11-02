@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/assets/style.css"><script src="/assets/site.js"></script><title>DelayGuard: predict late deliveries before they happen</title></head>
+<body data-page="home"><main>
+<div class="wrap hero">
+<div><h1>Know which orders will run late before they ship.</h1>
+<p class="lead">DelayGuard estimates the chance that an order will be delivered late, using only what is known when it is placed, and shows which factors drove the estimate.</p>
+<div class="actions"><a class="btn" href="/check">Check an order</a><a class="btn ghost" href="/how-it-works">How it works</a></div></div>
+<div class="bars" aria-label="Share of orders that were late, by shipping mode">
+<h2>Orders that were late, by shipping mode</h2>
+<div class="brow"><span>First Class</span><span class="t"><span class="f" style="--w:95.5%"></span></span><b>95.5%</b></div>
+<div class="brow"><span>Second Class</span><span class="t"><span class="f" style="--w:78.2%"></span></span><b>78.2%</b></div>
+<div class="brow"><span>Same Day</span><span class="t"><span class="f" style="--w:46%"></span></span><b>46.0%</b></div>
+<div class="brow"><span>Standard Class</span><span class="t"><span class="f" style="--w:37.6%"></span></span><b>37.6%</b></div>
+<p class="note">In this data, faster shipping modes were late more often. Measured on 9,000 test orders from the DataCo dataset.</p></div>
+</div>
+<div class="wrap"><div class="stats">
+<div class="stat"><b>45,000</b><span>orders in the working sample, drawn from 180,519</span></div>
+<div class="stat"><b>60</b><span>input features after preparation</span></div>
+<div class="stat"><b>0.79</b><span>ROC-AUC on 9,000 orders the model never saw</span></div></div></div>
+<section><div class="wrap"><h2>Built to stay honest</h2><div class="cols">
+<div><h3>Only what is known at order time</h3><p class="muted">Columns that reveal the outcome, such as the real shipping days and the delivery status, were removed. Order status was removed too after a leakage check.</p></div>
+<div><h3>Every estimate comes with reasons</h3><p class="muted">The three biggest factors behind each prediction are shown as SHAP values, so a person can judge whether the estimate makes sense.</p></div>
+<div><h3>Open about its limits</h3><p class="muted">The model is strong for Same Day and First Class orders and weak for Standard Class. The Results page shows exactly where.</p></div></div></div></section>
+<section class="cta"><div class="wrap"><h2>Try it on an order.</h2><p>Pick an example or enter your own details and see the risk in a second.</p><a class="btn inv" href="/check">Check an order</a></div></section>
+</main></body></html>

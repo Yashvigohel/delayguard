@@ -6,6 +6,7 @@ import pandas as pd
 import xgboost as xgb
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 MODELS = Path(__file__).resolve().parent.parent / "models"
@@ -41,6 +42,7 @@ def clean(col, value):
 app = FastAPI(title="DelayGuard - Late Delivery Risk Predictor",
               description="Predicts at order time whether an order is at risk of late delivery.")
 
+app.mount("/assets", StaticFiles(directory=STATIC), name="assets")
 
 class Order(BaseModel):
     order_date: str = "2017-09-21 09:49:00"
@@ -71,6 +73,30 @@ CATEGORICAL = ['Type', 'Customer Country', 'Customer Segment', 'Department Name'
 @app.get("/")
 def home():
     return FileResponse(STATIC / "index.html")
+
+@app.get("/check")
+def check():
+    return FileResponse(STATIC / "check.html")
+
+
+@app.get("/how-it-works")
+def how_it_works():
+    return FileResponse(STATIC / "how-it-works.html")
+
+
+@app.get("/dataset")
+def dataset():
+    return FileResponse(STATIC / "dataset.html")
+
+
+@app.get("/results")
+def results():
+    return FileResponse(STATIC / "results.html")
+
+
+@app.get("/about")
+def about():
+    return FileResponse(STATIC / "about.html")
 
 
 @app.get("/health")
@@ -136,5 +162,5 @@ def predict(o: Order):
         "prediction": "HIGH RISK of late delivery" if high else "LOW RISK",
         "suggested_action": "Prioritise this order or upgrade shipping" if high else "No action needed",
         "top_reasons": reasons,
-        "note": "Uses only information available at order time.",
+        "note": "Uses only information available at order time. Coordinates, product category and profit fields use typical default values, so reasons based on them are indicative only.",
     }

@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/assets/style.css"><script src="/assets/site.js"></script><title>Check an order | DelayGuard</title>
+<style>
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;margin-top:1.2rem}.chip{border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.5rem 1rem;cursor:pointer;font:500 .95rem var(--body)}.chip:hover{background:var(--tint);border-color:var(--primary)}
+.work{display:grid;gap:2.5rem;padding:1.5rem 0 3.5rem;align-items:start}@media(min-width:960px){.work{grid-template-columns:1.05fr 1fr;gap:3rem}.rcol{position:sticky;top:90px}}
+.group{padding:1.3rem 0;border-top:1.5px solid var(--line)}.group:first-child{border-top:0;padding-top:0}.group h2{font-size:1.25rem;margin:0 0 1rem}
+.g2{display:grid;gap:1rem}@media(min-width:560px){.g2{grid-template-columns:1fr 1fr}}
+.field{display:flex;flex-direction:column;gap:.35rem}label,legend{font-weight:500;font-size:.95rem;padding:0}fieldset{border:0;margin:1rem 0 0;padding:0}
+.control{width:100%;min-height:46px;padding:.6rem .8rem;border:1.5px solid var(--line);border-radius:12px;background:var(--surface);font:inherit;color:inherit}.control:focus{outline:3px solid var(--ring);border-color:var(--primary)}.help{margin:0;font-size:.85rem;color:var(--muted)}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;margin-top:.4rem}.seg label{position:relative;display:block}.seg input{position:absolute;inset:0;width:100%;height:100%;opacity:0;margin:0;cursor:pointer}
+.seg span{display:block;text-align:center;padding:.8rem .5rem;font-weight:500;border:1.5px solid var(--line);border-radius:12px;background:var(--surface)}.seg input:checked+span{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}.seg input:focus-visible+span{outline:3px solid var(--ring);outline-offset:2px}
+.submit{width:100%;margin-top:.5rem}.msg{margin:.75rem 0 0;color:var(--high);font-weight:500;min-height:1.4em}
+.result{--accent:var(--primary);--ink2:var(--on-primary);background:var(--res-idle);border-radius:28px;padding:1.75rem 1.5rem;transition:background-color .4s}
+.result[data-risk=high]{--accent:var(--high);--ink2:var(--on-high);background:var(--res-high)}.result[data-risk=low]{--accent:var(--low);--ink2:var(--on-low);background:var(--res-low)}
+.gauge{position:relative;width:min(100%,360px);margin:0 auto}.gauge svg{display:block;width:100%;height:auto}.gt,.gf{fill:none;stroke-width:16}.gt{stroke:var(--track)}
+.gf{stroke:var(--accent);stroke-dasharray:1 1;stroke-dashoffset:1;transition:stroke-dashoffset 1s cubic-bezier(.2,.8,.2,1)}.gk{stroke:var(--ink);stroke-width:3;stroke-linecap:round}
+.read{position:absolute;left:0;right:0;bottom:2%;text-align:center;line-height:1}.pct{display:block;font:800 clamp(2.6rem,8vw,3.6rem) var(--display);letter-spacing:-.03em}.cap{display:block;margin-top:.25rem;font-size:.9rem;color:var(--muted)}
+.result[data-state=loading] .pct{animation:pl 1.1s ease-in-out infinite}@keyframes pl{50%{opacity:.35}}
+.legend{margin:.9rem 0 0;text-align:center;font-size:.88rem;color:var(--muted)}
+.st{display:none;margin-top:1.25rem}.result[data-state=idle] .s-idle,.result[data-state=loading] .s-loading,.result[data-state=error] .s-error,.result[data-state=done] .s-done{display:block}
+.s-idle,.s-loading,.s-error{text-align:center}.st h3{margin:0 0 .3rem}.st p{color:var(--muted);margin:0 0 .5rem}
+.pill{display:inline-flex;align-items:center;padding:.5rem 1.1rem;border-radius:999px;background:var(--accent);color:var(--ink2);font:700 1.1rem var(--display)}
+.verdict{margin:.9rem 0 0;color:var(--ink)!important}.action{margin:.9rem 0 0;padding:.8rem 1rem;border-radius:14px;background:var(--surface);color:var(--ink)!important}
+.why{margin-top:1.5rem}.why h3{margin:0 0 .15rem}.why .sub{font-size:.88rem;margin:0 0 .9rem}.rs{list-style:none;margin:0;padding:0;display:grid;gap:.95rem}
+.rh{display:flex;justify-content:space-between;gap:.75rem;font-size:.93rem;margin-bottom:.3rem}.rh b{font-weight:500}.rh span{color:var(--muted);white-space:nowrap}
+.tr{position:relative;height:12px;border-radius:6px;background:var(--track)}.tr::after{content:"";position:absolute;left:50%;top:-3px;bottom:-3px;width:2px;margin-left:-1px;background:var(--ink);opacity:.55}
+.bar2{position:absolute;top:0;bottom:0;width:0;transition:width .9s cubic-bezier(.2,.8,.2,1) .15s}.up{left:50%;background:var(--high);border-radius:0 6px 6px 0}.down{right:50%;background:var(--low);border-radius:6px 0 0 6px}.go .bar2{width:var(--w)}
+.axis{display:flex;justify-content:space-between;margin-top:.6rem;font-size:.8rem;color:var(--muted)}details{margin-top:1.2rem;font-size:.9rem;color:var(--muted)}summary{cursor:pointer;font-weight:500;color:var(--ink)}
+.q{background:transparent;border:1.5px solid var(--ink);color:var(--ink);border-radius:999px;padding:.55rem 1.1rem;cursor:pointer;font:500 .95rem var(--body);margin-top:.5rem}
+</style></head>
+<body data-page="check"><main><div class="wrap">
+<div class="page-head"><h1>Check an order</h1><p class="lead">Enter the order details, or start from an example. Only information known at order time is used.</p>
+<div class="chips" id="examples"><span style="font-weight:500">Try an example</span></div></div>
+<div class="work">
+<form id="f" novalidate>
+<div class="group"><h2>When and how it ships</h2>
+<div class="field"><label for="order_date">Order placed</label><input class="control" type="datetime-local" id="order_date"></div>
+<fieldset><legend>Shipping mode</legend><div class="seg" id="seg"></div></fieldset></div>
+<div class="group"><h2>Customer and payment</h2><div class="g2">
+<div class="field"><label for="payment_type">Payment type</label><select class="control" id="payment_type"></select></div>
+<div class="field"><label for="customer_segment">Customer segment</label><select class="control" id="customer_segment"></select></div>
+<div class="field"><label for="market">Market</label><select class="control" id="market"></select></div>
+<div class="field"><label for="order_region">Order region</label><select class="control" id="order_region"></select></div></div></div>
+<div class="group"><h2>Order value</h2><div class="g2">
+<div class="field"><label for="sales">Order amount (sales)</label><input class="control" type="number" id="sales" inputmode="decimal" min="1" step="any" value="200"></div>
+<div class="field"><label for="discount">Discount rate</label><input class="control" type="number" id="discount" inputmode="decimal" min="0" max="0.25" step="0.01" value="0.10"><p class="help">From 0 to 0.25. For example, 0.10 is 10%.</p></div></div></div>
+<button type="submit" class="btn submit" id="go">Check delay risk</button><p class="msg" id="msg" role="alert"></p></form>
+<div class="rcol"><section class="result" id="res" data-state="idle" data-risk="none" aria-live="polite">
+<div class="gauge"><svg viewBox="0 0 200 112" role="img" aria-label="Late delivery chance gauge"><path class="gt" d="M 20 100 A 80 80 0 0 1 180 100" pathLength="1"/><path class="gf" id="gf" d="M 20 100 A 80 80 0 0 1 180 100" pathLength="1"/><line class="gk" id="gk" x1="0" y1="0" x2="0" y2="0" visibility="hidden"/></svg>
+<div class="read"><span class="pct" id="pct">–</span><span class="cap" id="cap">not checked yet</span></div></div>
+<p class="legend" id="legend" hidden>Cut-off <b id="cut"></b>. Orders at or above it are flagged.</p>
+<div class="st s-idle"><h3>Your result shows up here</h3><p>Pick an example or fill in the order, then check the risk.</p></div>
+<div class="st s-loading"><h3>Checking this order</h3><p id="slow" hidden>The free server may be waking up. The first check after a quiet spell can take up to a minute.</p></div>
+<div class="st s-error"><h3>That didn't work</h3><p id="err"></p><button type="button" class="q" id="retry">Try again</button></div>
+<div class="st s-done"><span class="pill" id="pill"></span><p class="verdict" id="vt"></p><p class="action"><b>Suggested action:</b> <span id="act"></span></p>
+<div class="why"><h3>What pushed this prediction</h3><p class="sub">Bars show how strongly each factor moved the estimate.</p><ul class="rs" id="rs"></ul><div class="axis"><span>Lowers risk</span><span>Raises risk</span></div></div>
+<details><summary>About this estimate</summary><p id="note"></p><p>The bars are SHAP values. They describe how the model behaves, not proven causes of delay.</p></details></div>
+</section></div></div></div></main>
+<script>
+(function(){'use strict';
+var $=function(s){return document.querySelector(s)};
+var SEL={payment_type:'Type',customer_segment:'Customer Segment',market:'Market',order_region:'Order Region'};
+var DEF={shipping_mode:'Standard Class',payment_type:'DEBIT',customer_segment:'Consumer',market:'LATAM',order_region:'Central America',sales:'200',discount:'0.10'};
+var EX=[['Standard Class, Wednesday 10:00','Standard Class','2017-09-20T10:00'],['First Class, Wednesday 10:00','First Class','2017-09-20T10:00'],['Same Day, 09:00','Same Day','2017-09-20T09:00'],['Same Day, 15:00','Same Day','2017-09-20T15:00']];
+var PLAIN={'Days for shipment (scheduled)':'Scheduled shipping days','order_hour':'Hour of day the order was placed','order_month':'Month of the order','order_weekday':'Day of the week','Sales':'Order amount','Sales per customer':'Sales per customer','Order Item Discount':'Discount amount','Order Item Discount Rate':'Discount rate','Order Item Product Price':'Product price','Latitude':'Delivery latitude (default value)','Longitude':'Delivery longitude (default value)','Benefit per order':'Profit on the order (default value)','Order Item Profit Ratio':'Profit ratio (default value)','Category Id':'Product category (default value)','Department Id':'Department (default value)'};
+var OH=[['Shipping Mode','Shipping mode','shipping_mode'],['Type','Payment type','payment_type'],['Customer Segment','Customer segment','customer_segment'],['Market','Market','market'],['Order Region','Order region','order_region'],['Customer Country','Customer country (default value)',null,'EE. UU.'],['Department Name','Department (default value)',null,'Fan Shop']];
+var busy=false,last=null,res=$('#res'),gf=$('#gf'),gk=$('#gk');
+function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e}
+function pc(p){return (p*100).toFixed(1)+'%'}
+function label(n,i){if(PLAIN[n])return PLAIN[n];for(var k=0;k<OH.length;k++){var o=OH[k];if(n.indexOf(o[0]+'_')===0){var v=n.slice(o[0].length+1),c=o[2]?i[o[2]]:o[3];return c===v?o[1]+': '+v:o[1]+' is not '+v}}return n.replace(/_/g,' ')}
+function read(){var r=document.querySelector('input[name=sm]:checked');return{order_date:$('#order_date').value,shipping_mode:r?r.value:'',payment_type:$('#payment_type').value,customer_segment:$('#customer_segment').value,market:$('#market').value,order_region:$('#order_region').value,sales:$('#sales').value,discount:$('#discount').value}}
+function put(o){if(o.order_date)$('#order_date').value=o.order_date;var r=document.querySelector('input[name=sm][value="'+o.shipping_mode+'"]');if(r)r.checked=true;Object.keys(SEL).forEach(function(id){var s=$('#'+id);for(var i=0;i<s.options.length;i++)if(s.options[i].value===o[id]){s.value=o[id];break}});$('#sales').value=o.sales;$('#discount').value=o.discount}
+function check(i){if(!i.order_date)return'Choose when the order was placed.';if(!i.shipping_mode)return'Choose a shipping mode.';var s=parseFloat(i.sales),d=parseFloat(i.discount);if(!(s>0))return'Enter an order amount above 0.';if(isNaN(d)||d<0||d>0.25)return'Discount rate must be between 0 and 0.25.';return''}
+function body(i){var s=parseFloat(i.sales),r=parseFloat(i.discount);return{order_date:i.order_date.replace('T',' ')+':00',shipping_mode:i.shipping_mode,payment_type:i.payment_type,customer_segment:i.customer_segment,market:i.market,order_region:i.order_region,sales:s,sales_per_customer:s*0.9,order_item_product_price:s,order_item_discount:s*r,order_item_discount_rate:r}}
+function st(s,r){res.setAttribute('data-state',s);res.setAttribute('data-risk',r||'none')}
+function reset(){gf.style.strokeDashoffset='1';gk.setAttribute('visibility','hidden');$('#legend').hidden=true}
+function fail(m){st('error');reset();$('#pct').textContent='–';$('#cap').textContent='no result';$('#err').textContent=m}
+function show(i,d){var p=d.late_probability,t=d.decision_threshold,hi=String(d.prediction).indexOf('HIGH')===0;
+st('done',hi?'high':'low');$('#pct').textContent=pc(p);$('#cap').textContent='chance of arriving late';
+var a=Math.PI*(1-t);gk.setAttribute('x1',(100+66*Math.cos(a)).toFixed(2));gk.setAttribute('y1',(100-66*Math.sin(a)).toFixed(2));gk.setAttribute('x2',(100+94*Math.cos(a)).toFixed(2));gk.setAttribute('y2',(100-94*Math.sin(a)).toFixed(2));gk.setAttribute('visibility','visible');
+$('#cut').textContent=pc(t);$('#legend').hidden=false;
+$('#pill').textContent=hi?'High risk of late delivery':'Low risk of late delivery';
+$('#vt').textContent='The late-delivery chance is '+pc(p)+', '+(hi?'at or above':'below')+' the '+pc(t)+' cut-off, so this order is '+(hi?'flagged.':'not flagged.');
+$('#act').textContent=d.suggested_action;$('#note').textContent=d.note||'';
+var ul=$('#rs');ul.textContent='';ul.classList.remove('go');var rs=d.top_reasons||[],m=0.0001;rs.forEach(function(r){m=Math.max(m,Math.abs(r.shap_value))});
+rs.forEach(function(r){var up=r.shap_value>0,li=document.createElement('li'),h=el('div','rh');h.appendChild(el('b','',label(r.feature,i)));h.appendChild(el('span','',(up?'+':'')+r.shap_value.toFixed(2).replace('-','\u2212')+(up?' raises risk':' lowers risk')));
+var tr=el('div','tr'),b=el('span','bar2 '+(up?'up':'down'));b.style.setProperty('--w',(Math.abs(r.shap_value)/m*50).toFixed(1)+'%');tr.appendChild(b);li.appendChild(h);li.appendChild(tr);ul.appendChild(li)});
+requestAnimationFrame(function(){requestAnimationFrame(function(){gf.style.strokeDashoffset=String(1-Math.min(Math.max(p,0),1));ul.classList.add('go')})})}
+async function run(i){if(busy)return;var pr=check(i);$('#msg').textContent=pr;if(pr)return;busy=true;last=i;$('#go').disabled=true;st('loading');reset();$('#pct').textContent='…';$('#cap').textContent='checking';$('#slow').hidden=true;
+if(innerWidth<960)res.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
+var sl=setTimeout(function(){$('#slow').hidden=false},4000),ct=new AbortController(),to=setTimeout(function(){ct.abort()},90000);
+try{var r=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body(i)),signal:ct.signal});var d=null;try{d=await r.json()}catch(e){}
+if(!r.ok||!d){var x=d&&d.detail;fail(typeof x==='string'?'The API rejected this order. '+x:'The API returned an error (status '+r.status+').')}else show(i,d)}
+catch(e){fail(e&&e.name==='AbortError'?'The API took too long to answer. Try again in a moment.':'We could not reach the DelayGuard API. If you run it locally, check the server is still running. If it is hosted on a free plan it may be asleep, so wait a few seconds and try again.')}
+finally{clearTimeout(sl);clearTimeout(to);busy=false;$('#go').disabled=false}}
+$('#f').addEventListener('submit',function(e){e.preventDefault();run(read())});$('#retry').addEventListener('click',function(){if(last)run(last)});
+EX.forEach(function(x){var b=el('button','chip',x[0]);b.type='button';b.addEventListener('click',function(){var o=Object.assign({},DEF,{shipping_mode:x[1],order_date:x[2]});put(o);run(read())});$('#examples').appendChild(b)});
+(async function(){var d=new Date();d.setSeconds(0,0);$('#order_date').value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+try{var r=await fetch('/options');if(!r.ok)throw 0;var o=await r.json();var seg=$('#seg');(o['Shipping Mode']||[]).forEach(function(v){var l=document.createElement('label'),i=document.createElement('input');i.type='radio';i.name='sm';i.value=v;l.appendChild(i);l.appendChild(el('span','',v));seg.appendChild(l)});
+Object.keys(SEL).forEach(function(id){var s=$('#'+id);(o[SEL[id]]||[]).forEach(function(v){var op=document.createElement('option');op.value=v;op.textContent=v;s.appendChild(op)})});put(Object.assign({},DEF,{order_date:$('#order_date').value}))}
+catch(e){$('#go').disabled=true;$('#msg').textContent='The form options could not be loaded from the API. Reload once the server is running.'}})();
+})();
+</script></body></html>

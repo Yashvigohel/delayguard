@@ -1,0 +1,13 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="stylesheet" href="/assets/style.css"><script src="/assets/site.js"></script><title>How it works | DelayGuard</title></head>
+<body data-page="how"><main><div class="wrap">
+<div class="page-head"><h1>How it works</h1><p class="lead">From raw orders to a live prediction, in the order the work was done.</p></div>
+<section><ol class="steps">
+<li><h3>Start from the DataCo orders</h3><p>The original file has 180,519 orders and 53 columns, with a flag showing whether each order was delivered late.</p></li>
+<li><h3>Remove what cannot be known at order time</h3><p>22 columns were dropped: personal details, ID numbers, duplicate, empty and constant columns, and two that reveal the outcome (the real shipping days and the delivery status).</p></li>
+<li><h3>Sample and split</h3><p>A stratified sample of 45,000 orders keeps the late and on-time shares unchanged. 36,000 orders train the models and 9,000 stay untouched until the final test.</p></li>
+<li><h3>Prepare the inputs</h3><p>Order dates become month, weekday and hour. Six very detailed text columns (cities, states, countries and category name) were dropped, the rest were one-hot encoded, and numbers were scaled using the training data only.</p></li>
+<li><h3>Check for leakage again</h3><p>Order status looked harmless but describes how an order ended. Removing it lowered ROC-AUC from 0.809 to 0.781 in cross-validation. We accepted the lower score because it is the honest one.</p></li>
+<li><h3>Train and tune</h3><p>A baseline that always says late, Logistic Regression, Decision Tree, Random Forest and XGBoost were compared with 5-fold cross-validation. Random Forest and XGBoost were tuned with randomized search on ROC-AUC.</p></li>
+<li><h3>Test once and choose</h3><p>On the test orders, Random Forest and XGBoost tied (ROC-AUC 0.790 and 0.789). XGBoost was chosen because its saved file is 2.0 MB against 23.8 MB, with the same recall.</p></li>
+<li><h3>Serve it</h3><p>A FastAPI service returns the late probability, a high or low risk decision at a cut-off of 0.385 that was set on training data, and the top three SHAP factors.</p></li>
+</ol><a class="btn" href="/results">See the results</a></section></div></main></body></html>
